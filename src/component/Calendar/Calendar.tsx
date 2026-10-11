@@ -20,6 +20,7 @@ import CustomToolbar from './CustomToolbar';
 import EventComponent from './EventComponent';
 // Import our filter component
 import FilterComponent from './FilterComponent';
+import MonthDateHeader from './MonthDateHeader';
 import {useView} from '@/hooks/useView';
 import {t} from '@/translations/helper';
 
@@ -356,6 +357,7 @@ const CalendarComponent = forwardRef((props: CalendarProps, ref: React.Forwarded
       components: {
         toolbar: CustomToolbar,
         event: EventComponent,
+        month: {dateHeader: MonthDateHeader},
       },
     };
   }, [
