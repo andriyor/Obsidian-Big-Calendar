@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom/client';
 
 import App from './App';
 import type BigCalendarPlugin from './index';
-import {fileService, eventService} from '@/services';
+import {fileService, eventService, locationService} from '@/services';
 import {getDateFromFile} from 'obsidian-daily-notes-interface';
 import {ViewProvider} from '@/hooks/useView';
 import {t} from '@/translations/helper';
@@ -85,6 +85,11 @@ export class BigCalendar extends ItemView {
         else split.expand();
       }
     });
+
+    // Apply the default workspace filter unless a filter was already chosen this session
+    if (!locationService.getState().query.filter) {
+      locationService.setEventFilter(this.plugin.settings.DefaultFilterId);
+    }
 
     this.root = ReactDOM.createRoot(this.contentEl);
     this.root.render(
