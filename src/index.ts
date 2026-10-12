@@ -47,6 +47,8 @@ export default class BigCalendarPlugin extends Plugin {
 
   async saveSettings(): Promise<void> {
     await this.saveData(this.settings);
+    // Push a new object so the calendar re-renders with the changed settings
+    globalService.setPluginSetting({...this.settings});
   }
 
   onunload(): void {
