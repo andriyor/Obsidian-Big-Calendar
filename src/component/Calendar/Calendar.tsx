@@ -13,6 +13,8 @@ import useCalendarStore from '@/stores/calendarStore';
 import EventCreatePrompt, {EventCreateResult} from '@/obComponents/EventCreatePrompt';
 import {useEvents} from '@/hooks/useStore';
 import useEventStore from '@/stores/eventStore';
+import useGlobalStateStore from '@/stores/globalStateStore';
+import {getTagColor} from '@/utils/tagColor';
 import locationService from '@/services/locationService';
 // Import our custom toolbar
 import CustomToolbar from './CustomToolbar';
@@ -217,11 +219,17 @@ const CalendarComponent = forwardRef((props: CalendarProps, ref: React.Forwarded
     [app],
   );
 
-  // Style events based on their type
-  const styleEvents = useCallback((event: any) => {
-    const className = event.eventType;
-    return {className: className};
-  }, []);
+  const tagColors = useGlobalStateStore((state) => state.pluginSetting?.TagColors);
+
+  // Style events based on their type, colored by the first matching tag from settings
+  const styleEvents = useCallback(
+    (event: any) => {
+      const className = event.eventType;
+      const color = getTagColor(event.title ?? '', tagColors);
+      return {className: className, style: color ? {backgroundColor: color} : undefined};
+    },
+    [tagColors],
+  );
 
   // Handle double click on events
   const handleDoubleClickEvent = useCallback(
