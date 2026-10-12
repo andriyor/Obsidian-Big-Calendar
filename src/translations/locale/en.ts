@@ -43,6 +43,10 @@ export default {
   'Choose the default filter to apply when opening the calendar':
     'Choose the default filter to apply when opening the calendar',
 
+  'Tag Colors': 'Tag Colors',
+  'Color events that mention a tag. The first matching tag wins.':
+    'Color events that mention a tag. The first matching tag wins.',
+
   // Filter Edit Modal
   'Edit Filter': 'Edit Filter',
   'Filter Name': 'Filter Name',

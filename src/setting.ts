@@ -10,6 +10,12 @@ export interface BigCalendarSettings {
   ProcessEntriesBelow: string;
   WorkspaceFilters: WorkspaceFilter[];
   DefaultFilterId: string;
+  TagColors: TagColor[];
+}
+
+export interface TagColor {
+  tag: string;
+  color: string;
 }
 
 export interface WorkspaceFilter {
@@ -41,6 +47,7 @@ export const DEFAULT_SETTINGS: BigCalendarSettings = {
     },
   ],
   DefaultFilterId: 'default',
+  TagColors: [],
 };
 
 export class BigCalendarSettingTab extends PluginSettingTab {
@@ -180,6 +187,43 @@ export class BigCalendarSettingTab extends PluginSettingTab {
         });
       });
 
+    new Setting(containerEl)
+      .setHeading()
+      .setName(t('Tag Colors'))
+      .setDesc(t('Color events that mention a tag. The first matching tag wins.'))
+      .addExtraButton((button) =>
+        button.setIcon('plus').onClick(async () => {
+          this.plugin.settings.TagColors = [...this.plugin.settings.TagColors, {tag: '', color: '#e05252'}];
+          // Save right away: display() reloads settings from disk
+          await this.plugin.saveSettings();
+          this.display();
+        }),
+      );
+
+    // Arrays are replaced, not mutated, so the calendar sees the change
+    this.plugin.settings.TagColors.forEach((tagColor, index) => {
+      const setTagColor = (patch: Partial<TagColor>) =>
+        this.updateTagColors(
+          this.plugin.settings.TagColors.map((item, i) => (i === index ? {...item, ...patch} : item)),
+        );
+
+      new Setting(containerEl)
+        .addText((text) =>
+          text
+            .setPlaceholder('#tag')
+            .setValue(tagColor.tag)
+            .onChange((value) => setTagColor({tag: value.trim()})),
+        )
+        .addColorPicker((picker) => picker.setValue(tagColor.color).onChange((value) => setTagColor({color: value})))
+        .addExtraButton((button) =>
+          button.setIcon('trash').onClick(async () => {
+            this.plugin.settings.TagColors = this.plugin.settings.TagColors.filter((_, i) => i !== index);
+            await this.plugin.saveSettings();
+            this.display();
+          }),
+        );
+    });
+
     new Setting(containerEl).setHeading().setName(t('Say Thank You'));
 
     new Setting(containerEl)
@@ -189,6 +233,11 @@ export class BigCalendarSettingTab extends PluginSettingTab {
       .addButton((bt) => {
         bt.buttonEl.outerHTML = `<a href="https://www.buymeacoffee.com/boninall"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a coffee&emoji=&slug=boninall&button_colour=6495ED&font_colour=ffffff&font_family=Inter&outline_colour=000000&coffee_colour=FFDD00"></a>`;
       });
+  }
+
+  private updateTagColors(tagColors: TagColor[]) {
+    this.plugin.settings.TagColors = tagColors;
+    this.applySettingsUpdate();
   }
 
   private showFilterEditModal(filter: WorkspaceFilter, index: number) {
